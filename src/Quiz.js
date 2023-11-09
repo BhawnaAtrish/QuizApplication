@@ -55,7 +55,7 @@ function Quiz() {
   // }, [quizStarted, currentQuestionIndex]);
 
   useEffect(() => {
-    fetch("/quiz-questions.json")
+    fetch("quiz-questions.json")
       .then((response) => response.json())
       .then((data) => {
         const shuffledQuestions = shuffleArray(data.questions);
