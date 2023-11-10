@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./Quiz.css";
+import data from "./quiz-questions.json";
 
 function Quiz() {
   const [questions, setQuestions] = useState([]);
@@ -11,17 +12,28 @@ function Quiz() {
   const [isSubmitClicked, setIsSubmitClicked] = useState(false);
   const [progress, setProgress] = useState(0);
   const [quizStarted, setQuizStarted] = useState(false);
-  const [totalTime, setTotalTime] = useState(0);
-  
+  const [overallTimer, setOverallTimer] = useState(0);
+
   let questionTimer;
   let totalTimer;
 
   const questionTimerDuration = 5000; // 5 seconds in milliseconds
   const [timer, setTimer] = useState(questionTimerDuration / 1000);
+
   useEffect(() => {
-    if (quizStarted && currentQuestionIndex < questions.length && !isSubmitClicked) {
-      const leftTimer = 5 - timer + totalTime;
-      setTotalTime(leftTimer);
+    // Overall quiz timer
+    if (quizStarted && !isSubmitClicked) {
+      totalTimer = setInterval(() => {
+        setOverallTimer((prevTimer) => prevTimer + 1);
+      }, 1000);
+    }
+
+    // Question timer
+    if (
+      quizStarted &&
+      currentQuestionIndex < questions.length &&
+      !isSubmitClicked
+    ) {
       setTimer(questionTimerDuration / 1000);
       questionTimer = setInterval(() => {
         setTimer((prevTimer) => {
@@ -37,33 +49,15 @@ function Quiz() {
 
     return () => {
       clearInterval(questionTimer);
+      clearInterval(totalTimer);
     };
   }, [quizStarted, currentQuestionIndex, isSubmitClicked]);
 
-  // useEffect(() => {
-  //   if (quizStarted && currentQuestionIndex === 0) {
-  //     const startTime = Date.now();
-  //     totalTimer = setInterval(() => {
-  //       const elapsedTime = Math.floor((Date.now() - startTime) / 1000);
-  //       setTotalTime(elapsedTime);
-  //     }, 1000);
-  //   }
-
-  //   return () => {
-  //     clearInterval(totalTimer);
-  //   };
-  // }, [quizStarted, currentQuestionIndex]);
-
   useEffect(() => {
-    fetch("quiz-questions.json")
-      .then((response) => response.json())
-      .then((data) => {
-        const shuffledQuestions = shuffleArray(data.questions);
-        setQuestions(shuffledQuestions);
-        setUserAnswers(new Array(shuffledQuestions.length).fill(null));
-        setIsLoading(false);
-      })
-      .catch((error) => console.error(error));
+    const shuffledQuestions = shuffleArray(data.questions);
+    setQuestions(shuffledQuestions);
+    setUserAnswers(new Array(shuffledQuestions.length).fill(null));
+    setIsLoading(false);
   }, []);
 
   const shuffleArray = (array) => {
@@ -72,7 +66,7 @@ function Quiz() {
       const j = Math.floor(Math.random() * (i + 1));
       [shuffledArray[i], shuffledArray[j]] = [
         shuffledArray[j],
-        shuffledArray[i],
+        shuffledArray[i]
       ];
     }
     return shuffledArray;
@@ -118,6 +112,8 @@ function Quiz() {
 
   const handleSubmit = () => {
     clearInterval(questionTimer);
+    clearInterval(totalTimer);
+
     let newScore = 0;
     for (let i = 0; i < questions.length; i++) {
       if (userAnswers[i] === questions[i].correctAnswer) {
@@ -128,7 +124,6 @@ function Quiz() {
     increaseProgress();
     setShowScore(true);
     setIsSubmitClicked(true);
-    clearInterval(totalTimer);
   };
 
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
@@ -172,7 +167,7 @@ function Quiz() {
             Your Score: {score} / {questions.length}
           </h2>
           <p>{getResultMessage()}</p>
-          <p>Total Time: {totalTime} seconds</p>
+          <p>Total Time: {overallTimer} seconds</p>
         </div>
       )}
     </div>
