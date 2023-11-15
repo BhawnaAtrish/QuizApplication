@@ -1,9 +1,8 @@
 # Quiz App
 
 This is a simple quiz application built with React.
-(https://docs.google.com/document/d/1dW7pPuDYPMa_wP609DTRcKSoiJa3h7USEWUyVkk00lk/edit)
 
-## Implemented all bonus challenges: 
+## Implemented the followings: 
 
 1. Randomize the order of questions each time the quiz is started.
 2. Implement a timer per question and a total time taken to complete the quiz.
